@@ -1,11 +1,11 @@
-# multi-agent-kingdom 設計ドキュメント
+# multi-agent-jin 設計ドキュメント
 
 > **Status**: v2.0
 > **Last Updated**: 2026-03-01
 
 ## 概要
 
-multi-agent-kingdom は Claude Code の Agent Teams 機能を使って構築するコーディング特化のマルチエージェントシステム。
+multi-agent-jin は Claude Code の Agent Teams 機能を使って構築するコーディング特化のマルチエージェントシステム。
 既存の tmux ベースシステム（multi-agent-shogun）を完全に置き換える。
 
 ---
@@ -56,7 +56,7 @@ spawn系統: 大将軍 → 本陣 / 軍師 → 本陣（指揮系統バイパス
 
 ### shogun システムとの違い
 
-| | shogun（tmux） | kingdom（Agent Teams） |
+| | shogun（tmux） | jin（Agent Teams） |
 |--|---------------|----------------------|
 | セッション | tmux 1つ（固定） | サービス単位で独立 |
 | コンテキスト混濁 | 全サービスが1セッションに混在 | サービスごとに分離 |

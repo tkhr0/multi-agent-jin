@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# add_service.sh — multi-agent-kingdom サービス追加スクリプト
+# add_service.sh — multi-agent-jin サービス追加スクリプト
 # ============================================================
 #
 # Usage:
@@ -9,7 +9,7 @@
 #   ./add_service.sh --help
 #
 # Description:
-#   kingdom にサービスを登録し、必要なファイル・ディレクトリを生成する。
+#   陣にサービスを登録し、必要なファイル・ディレクトリを生成する。
 #   - config/services.yaml にエントリ追加
 #   - context/{service}.md テンプレート生成
 #   - projects/{service}/agents.yaml 初期化

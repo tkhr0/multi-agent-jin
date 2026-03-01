@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# first_setup.sh — multi-agent-kingdom 初回セットアップスクリプト
+# first_setup.sh — multi-agent-jin 初回セットアップスクリプト
 # ============================================================
 #
 # Usage:
@@ -41,7 +41,7 @@ check_fail() { error "$1"; CHECKS_FAILED=$((CHECKS_FAILED + 1)); }
 # ============================================================
 echo ""
 echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}║   multi-agent-kingdom 初回セットアップ   ║${NC}"
+echo -e "${BOLD}║   multi-agent-jin 初回セットアップ   ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -156,7 +156,7 @@ if command -v claude &>/dev/null; then
         echo ""
         echo "  設定方法:"
         echo "    claude mcp add memory \\"
-        echo "      -e MEMORY_FILE_PATH=\"\$HOME/.claude/memory/kingdom_memory.jsonl\" \\"
+        echo "      -e MEMORY_FILE_PATH=\"\$HOME/.claude/memory/jin_memory.jsonl\" \\"
         echo "      -- npx -y @modelcontextprotocol/server-memory"
         echo ""
     fi
