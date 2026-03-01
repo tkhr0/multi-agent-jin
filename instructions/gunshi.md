@@ -79,7 +79,7 @@ persona:
 1. context/{service}.md を読む
    → サービスの技術文脈・規約を把握
 
-2. projects/{service}/{feature}.yaml を読む
+2. projects/{service}/{feature_id}.yaml を読む
    → タスク分解・進捗・兵の状態を把握
    → 自分がどこまで進めていたかを確認
 
@@ -96,11 +96,11 @@ persona:
 ```
 1. context/{service}.md を読む（サービスの規約確認）
 2. タスク分解（下記「五つの問い」を参照）
-3. projects/{service}/{feature}.yaml を更新（タスク一覧を記録）
+3. projects/{service}/{feature_id}.yaml を更新（タスク一覧を記録）
 4. 兵の spawn を本陣に直接要請（SendMessage）
    「兵の召喚をお願いします。
     service: myapp
-    feature: preview
+    feature_id: 42-preview
     instruction_path: instructions/hei.md
     task: バックエンドAPI実装」
 5. 本陣から兵の名前が通知されたら、各兵に SendMessage で指示を送る
@@ -136,7 +136,7 @@ persona:
 SendMessage → 本陣
 「兵の召喚をお願いします。
   service: myapp
-  feature: preview
+  feature_id: 42-preview
   instruction_path: instructions/hei.md
   task: バックエンドAPI実装」
 ```
@@ -164,7 +164,7 @@ SendMessage → 兵A
 
 ### 完了報告
 ```
-1. projects/{service}/{feature}.yaml のタスク status を done に更新
+1. projects/{service}/{feature_id}.yaml のタスク status を done に更新
 2. 全タスクが done になったか確認
    → まだなら次の兵を待つ
    → 全て done なら大将軍に SendMessage で報告
@@ -226,11 +226,11 @@ SendMessage → 兵A
 ## PRマージ後処理（大将軍から通知を受けたとき）
 
 ```
-1. logs/{service}/{feature}/implementation_log.yaml を読む
+1. logs/{service}/{feature_id}/implementation_log.yaml を読む
 2. 有益な知見を抽出して context/{service}.md に追記
    （設計判断・ハマりポイント・今後への示唆）
 3. implementation_log.yaml を削除
-4. projects/{service}/{feature}.yaml の status を done に更新
+4. projects/{service}/{feature_id}.yaml の status を done に更新
 5. 大将軍に完了報告
 6. 自分自身は終了
 ```
@@ -243,10 +243,10 @@ SendMessage → 兵A
 
 | タイミング | 書く先 | 内容 |
 |-----------|--------|------|
-| タスク分解完了時 | `projects/{service}/{feature}.yaml` | タスク一覧・担当兵の予定 |
-| 兵への指示送信後（agent ID 受領直後） | `{feature}.yaml` の `hei_agent_id` | agent_id を即時記録 |
-| 兵からの完了報告受け取り時 | `{feature}.yaml` の task status | `done` に更新 |
-| PR 作成完了後 | `{feature}.yaml` の `pr_number` | PR 番号を即時記録 |
+| タスク分解完了時 | `projects/{service}/{feature_id}.yaml` | タスク一覧・担当兵の予定 |
+| 兵への指示送信後（agent ID 受領直後） | `{feature_id}.yaml` の `hei_agent_id` | agent_id を即時記録 |
+| 兵からの完了報告受け取り時 | `{feature_id}.yaml` の task status | `done` に更新 |
+| PR 作成完了後 | `{feature_id}.yaml` の `pr_number` | PR 番号を即時記録 |
 
 ---
 
@@ -272,7 +272,7 @@ date "+%Y-%m-%dT%H:%M:%S"
 ## コンパクション復帰手順
 
 ### 正データ（一次情報）
-1. **projects/{service}/{feature}.yaml** — タスク分解・兵の状態
+1. **projects/{service}/{feature_id}.yaml** — タスク分解・兵の状態
 2. **context/{service}.md** — サービスの技術文脈
 
 ### 復帰後の行動

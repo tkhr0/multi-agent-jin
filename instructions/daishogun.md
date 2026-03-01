@@ -80,7 +80,7 @@ persona:
 3. projects/{service}/agents.yaml を読む
    → 管理中の軍師と agent ID を確認
 
-4. projects/{service}/*.yaml を読む（{feature}.yaml）
+4. projects/{service}/*.yaml を読む（{feature_id}.yaml）
    → 各機能の進捗・タスク状況を把握
 
 5. GitHub Issues を確認（gh issue list --state open）
@@ -99,12 +99,17 @@ persona:
 ### 新機能の開発依頼
 ```
 1. GitHub Issue を作成（gh issue create）
-2. context/{service}.md を読んでサービスの文脈を把握
-3. {feature}.yaml を新規作成
-4. 軍師の spawn を本陣に要請（SendMessage）
-5. spawn 完了の通知を受けたら軍師に SendMessage で指示
-6. dashboard.md の ## {service} セクションを更新
-7. 王に「着手した」と伝える
+   → Issue 番号を取得
+   → Issue なしの場合は日付（YYYYMMDD）を使う
+2. feature_id を決定（命名規則に従う）
+   → Issue あり: {issue番号}-{feature名}（例: 333-noindex）
+   → Issue なし: {YYYYMMDD}-{feature名}（例: 20260301-refactor-auth）
+3. context/{service}.md を読んでサービスの文脈を把握
+4. {feature_id}.yaml を新規作成
+5. 軍師の spawn を本陣に要請（SendMessage）
+6. spawn 完了の通知を受けたら軍師に SendMessage で指示
+7. dashboard.md の ## {service} セクションを更新
+8. 王に「着手した」と伝える
 ```
 
 ### 技術的な問題の報告（CI 失敗・バグ・エラー等）
@@ -137,9 +142,9 @@ persona:
 SendMessage → 本陣
 「軍師の召喚をお願いします。
   service: myapp
-  feature: preview
+  feature_id: 42-preview
   instruction_path: instructions/gunshi.md
-  yaml_path: projects/myapp/preview.yaml」
+  yaml_path: projects/myapp/42-preview.yaml」
 ```
 
 spawn 完了後、本陣から agent_name が通知される。
@@ -199,7 +204,7 @@ spawn 完了後、本陣から agent_name が通知される。
 - よく使うコマンド・手順
 
 ### 記載しないもの
-- 特定機能の実装詳細（{feature}.yaml に書く）
+- 特定機能の実装詳細（{feature_id}.yaml に書く）
 - 一時的な作業状況（dashboard.md に書く）
 
 ---
@@ -219,7 +224,7 @@ spawn 完了後、本陣から agent_name が通知される。
 
 ### 通常報告（タスク完了・進捗）
 ```
-1. {feature}.yaml を更新
+1. {feature_id}.yaml を更新
 2. dashboard.md を更新
 3. 次のアクションがあれば軍師に SendMessage
 ```
@@ -252,9 +257,9 @@ spawn 完了後、本陣から agent_name が通知される。
 
 | タイミング | 書く先 | 内容 |
 |-----------|--------|------|
-| タスク分解依頼時 | `projects/{service}/{feature}.yaml` 新規作成 | 機能概要・GitHub Issue 番号 |
+| タスク分解依頼時 | `projects/{service}/{feature_id}.yaml` 新規作成 | 機能概要・GitHub Issue 番号 |
 | 軍師 spawn 後（agent ID 受領直後） | `projects/{service}/agents.yaml` | agent_id を即時追記 |
-| 軍師から報告受け取り時 | `projects/{service}/{feature}.yaml` | 進捗を更新 |
+| 軍師から報告受け取り時 | `projects/{service}/{feature_id}.yaml` | 進捗を更新 |
 | PRマージ後処理完了時 | `agents.yaml` + `context/{service}.md` | agent_id 削除・知見統合 |
 
 ---
@@ -299,7 +304,7 @@ date "+%Y-%m-%dT%H:%M:%S"
 1. **Memory MCP（read_graph）** — 王の好み・ルール
 2. **context/{service}.md** — サービスの技術文脈
 3. **projects/{service}/agents.yaml** — 軍師の agent ID
-4. **projects/{service}/{feature}.yaml** — 各機能の状態
+4. **projects/{service}/{feature_id}.yaml** — 各機能の状態
 5. **GitHub Issues（open）** — 王の意図
 
 ### 二次情報（参考のみ）

@@ -56,7 +56,7 @@ workflow:
     note: "PR 本文に 関連 Issue: #N を記載（Closes #N は禁止）"
   - step: 8
     action: write_implementation_log
-    target: "logs/{service}/{feature}/implementation_log.yaml"
+    target: "logs/{service}/{feature_id}/implementation_log.yaml"
     mandatory: true
   - step: 9
     action: report_to_gunshi
@@ -181,7 +181,7 @@ EOF
 
 ### Step 7: 実装ログを書く（必須）
 
-PR 作成後、**必ず** `logs/{service}/{feature}/implementation_log.yaml` を書け。
+PR 作成後、**必ず** `logs/{service}/{feature_id}/implementation_log.yaml` を書け。
 これが次の兵（レビュー対応担当）への唯一の引き継ぎ情報となる。**全情報をここに書く。**
 
 ```yaml
@@ -265,7 +265,7 @@ SendMessage → 軍師
 通常の実装とは異なる手順で開始せよ。
 
 ```
-1. logs/{service}/{feature}/implementation_log.yaml を読む
+1. logs/{service}/{feature_id}/implementation_log.yaml を読む
    → 前任の兵の実装意図・設計判断を把握
 
 2. gh pr diff {pr_number} でレビューコメントを確認

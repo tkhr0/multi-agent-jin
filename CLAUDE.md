@@ -27,9 +27,9 @@
 config/services.yaml              # 管理サービス一覧
 projects/{service}/           # サービスごとのプロジェクト管理
   agents.yaml                 # 大将軍・軍師の agent ID
-  {feature}.yaml              # 機能ごとの状態・タスク
+  {feature_id}.yaml           # 機能ごとの状態・タスク（例: 333-noindex.yaml）
 context/{service}.md          # サービス固有の技術知見（大将軍が守護）
-logs/{service}/{feature}/     # 実装ログ（兵が書いて終了）
+logs/{service}/{feature_id}/  # 実装ログ（兵が書いて終了）
   implementation_log.yaml
 dashboard.md                  # 全体進捗（大将軍がサービスセクションのみ更新）
 instructions/                 # 各エージェントの指示書
