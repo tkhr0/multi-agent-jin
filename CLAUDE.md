@@ -12,7 +12,8 @@
 ## ファイル構成
 
 ```
-config/services.yaml          # 管理サービス一覧
+.active_service                   # 起動サービス指定（shutsujin.sh が書く・honjin が読む）
+config/services.yaml              # 管理サービス一覧
 projects/{service}/           # サービスごとのプロジェクト管理
   agents.yaml                 # 大将軍・軍師の agent ID
   {feature}.yaml              # 機能ごとの状態・タスク

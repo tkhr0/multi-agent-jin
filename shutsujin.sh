@@ -1,0 +1,267 @@
+#!/bin/bash
+# ============================================================
+# shutsujin.sh — multi-agent-kingdom 出陣スクリプト
+# ============================================================
+#
+# Usage:
+#   ./shutsujin.sh <service_name> [OPTIONS]
+#
+# Options:
+#   --model MODEL    本陣のモデル指定（デフォルト: opus）
+#   --clean          サービス状態をリセットして起動
+#   --help           ヘルプ表示
+#
+# Description:
+#   指定サービスの本陣（Honjin）セッションを起動する。
+#   Claude Code の Agent Teams を使い、本陣 → 大将軍 → 軍師 → 兵 の階層を構築する。
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# ============================================================
+# 色・ログ
+# ============================================================
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+info()  { echo -e "${GREEN}[INFO]${NC} $1"; }
+warn()  { echo -e "${YELLOW}[WARN]${NC} $1"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+
+# ============================================================
+# ヘルプ
+# ============================================================
+show_help() {
+    cat <<'HELP'
+Usage: ./shutsujin.sh <service_name> [OPTIONS]
+
+Arguments:
+  service_name     起動するサービスのID（config/services.yaml に登録済みであること）
+
+Options:
+  --model MODEL    本陣のモデル指定（opus, sonnet, haiku / デフォルト: opus）
+  --clean          サービス状態をリセットして起動
+  --help           このヘルプを表示
+
+Examples:
+  ./shutsujin.sh myapp                  # myapp サービスを起動
+  ./shutsujin.sh myapp --model sonnet   # モデルを sonnet に指定
+  ./shutsujin.sh myapp --clean          # 状態リセットして起動
+HELP
+    exit 0
+}
+
+# ============================================================
+# YAML パースユーティリティ
+# ============================================================
+
+# config/services.yaml から指定サービスのフィールドを取得
+get_service_field() {
+    local service_id="$1"
+    local field="$2"
+    local in_service=false
+
+    while IFS= read -r line; do
+        if echo "$line" | grep -q "^  - id: ${service_id}$"; then
+            in_service=true
+            continue
+        fi
+        if [[ "$in_service" == true ]]; then
+            # 次のサービスエントリに到達したら終了
+            if echo "$line" | grep -q "^  - id:"; then
+                break
+            fi
+            if echo "$line" | grep -q "^    ${field}:"; then
+                echo "$line" | sed "s/^    ${field}: *//" | tr -d '"' | tr -d "'"
+                return 0
+            fi
+        fi
+    done < "$SERVICES_FILE"
+
+    return 1
+}
+
+# config/services.yaml から全サービスIDを一覧
+list_services() {
+    grep "^  - id:" "$SERVICES_FILE" 2>/dev/null | sed 's/^  - id: *//' || true
+}
+
+# ============================================================
+# 引数パース
+# ============================================================
+SERVICE_NAME=""
+MODEL="opus"
+CLEAN_MODE=false
+
+# 引数なしならヘルプ
+if [[ $# -eq 0 ]]; then
+    show_help
+fi
+
+# 最初の引数がオプションでなければサービス名
+if [[ "$1" != --* ]]; then
+    SERVICE_NAME="$1"
+    shift
+fi
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --model)
+            MODEL="$2"
+            shift 2
+            ;;
+        --clean)
+            CLEAN_MODE=true
+            shift
+            ;;
+        --help)
+            show_help
+            ;;
+        *)
+            error "不明な引数: $1"
+            echo ""
+            show_help
+            ;;
+    esac
+done
+
+if [[ -z "$SERVICE_NAME" ]]; then
+    error "サービス名が指定されていません"
+    echo ""
+    show_help
+fi
+
+# ============================================================
+# サービス検証
+# ============================================================
+SERVICES_FILE="$SCRIPT_DIR/config/services.yaml"
+
+if [[ ! -f "$SERVICES_FILE" ]]; then
+    error "config/services.yaml が見つかりません"
+    echo "先に ./first_setup.sh を実行してください"
+    exit 1
+fi
+
+SERVICE_PATH=$(get_service_field "$SERVICE_NAME" "path" || true)
+SERVICE_STATUS=$(get_service_field "$SERVICE_NAME" "status" || true)
+SERVICE_DESC=$(get_service_field "$SERVICE_NAME" "description" || true)
+
+if [[ -z "$SERVICE_PATH" ]]; then
+    error "サービス '$SERVICE_NAME' が config/services.yaml に見つかりません"
+    echo ""
+    echo "登録済みサービス:"
+    AVAILABLE=$(list_services)
+    if [[ -n "$AVAILABLE" ]]; then
+        echo "$AVAILABLE" | while read -r svc; do echo "  - $svc"; done
+    else
+        echo "  （なし — ./add_service.sh でサービスを追加してください）"
+    fi
+    exit 1
+fi
+
+if [[ "$SERVICE_STATUS" != "active" ]]; then
+    warn "サービス '$SERVICE_NAME' のステータスは '$SERVICE_STATUS' です"
+fi
+
+# サービスパス存在確認
+if [[ ! -d "$SERVICE_PATH" ]]; then
+    warn "サービスのディレクトリが存在しません: $SERVICE_PATH"
+fi
+
+# モデル検証
+case "$MODEL" in
+    opus|sonnet|haiku) ;;
+    *)
+        error "不正なモデル: ${MODEL} （opus, sonnet, haiku のいずれかを指定）"
+        exit 1
+        ;;
+esac
+
+# ============================================================
+# クリーンモード
+# ============================================================
+if [[ "$CLEAN_MODE" == true ]]; then
+    info "クリーンモード: サービス状態をリセットします"
+
+    # バックアップ
+    BACKUP_DIR="$SCRIPT_DIR/logs/backup_$(date '+%Y%m%d_%H%M%S')"
+    mkdir -p "$BACKUP_DIR"
+
+    AGENTS_FILE="$SCRIPT_DIR/projects/${SERVICE_NAME}/agents.yaml"
+    DASHBOARD_FILE="$SCRIPT_DIR/dashboard.md"
+
+    if [[ -f "$AGENTS_FILE" ]]; then
+        cp "$AGENTS_FILE" "$BACKUP_DIR/"
+        cat > "$AGENTS_FILE" <<EOF
+service: ${SERVICE_NAME}
+agents:
+  daishogun: null
+  gunshis: []
+EOF
+        info "projects/${SERVICE_NAME}/agents.yaml をリセット"
+    fi
+
+    if [[ -f "$DASHBOARD_FILE" ]]; then
+        cp "$DASHBOARD_FILE" "$BACKUP_DIR/"
+        cat > "$DASHBOARD_FILE" <<EOF
+# Dashboard
+
+> 大将軍が更新する進捗ダッシュボード
+
+## ${SERVICE_NAME}
+
+（初期化済み）
+EOF
+        info "dashboard.md をリセット"
+    fi
+
+    info "バックアップ: $BACKUP_DIR"
+    echo ""
+fi
+
+# ============================================================
+# .active_service 書き込み
+# ============================================================
+ACTIVE_SERVICE_FILE="$SCRIPT_DIR/.active_service"
+
+cat > "$ACTIVE_SERVICE_FILE" <<EOF
+service_id: ${SERVICE_NAME}
+service_path: ${SERVICE_PATH}
+launched_at: "$(date '+%Y-%m-%dT%H:%M:%S')"
+EOF
+
+# ============================================================
+# クリーンアップ（終了時）
+# ============================================================
+cleanup() {
+    rm -f "$ACTIVE_SERVICE_FILE"
+}
+trap cleanup EXIT
+
+# ============================================================
+# バナー
+# ============================================================
+echo ""
+echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}"
+echo -e "${BOLD}║         ⚔  出陣  ⚔                     ║${NC}"
+echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  サービス: ${CYAN}${SERVICE_NAME}${NC}"
+echo -e "  パス:     ${SERVICE_PATH}"
+echo -e "  説明:     ${SERVICE_DESC}"
+echo -e "  モデル:   ${CYAN}${MODEL}${NC}"
+echo ""
+echo -e "  ${YELLOW}Claude Code を起動します...${NC}"
+echo -e "  ${YELLOW}CLAUDE.md → honjin.md の順で初期化が行われます${NC}"
+echo ""
+
+# ============================================================
+# Claude Code 起動
+# ============================================================
+cd "$SCRIPT_DIR"
+exec claude --model "$MODEL" --dangerously-skip-permissions

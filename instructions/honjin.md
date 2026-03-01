@@ -64,11 +64,13 @@ spawn 管理と王⇔大将軍間のメッセージ中継のみを担え。
 
 ```
 1. instructions/honjin.md を読む（これ自体）
-2. config/services.yaml を読む → サービス情報を確認
-3. 大将軍を spawn する
+2. .active_service を読む → 担当サービスのIDとパスを確認
+3. config/services.yaml を読む → サービスの詳細情報を確認
+4. 大将軍を spawn する
    → instructions/daishogun.md を読ませる
+   → 担当サービスのID・パスを伝える
    → spawn 後、大将軍に「起動完了」と SendMessage
-4. 王からのメッセージを大将軍に中継する準備完了
+5. 王からのメッセージを大将軍に中継する準備完了
 ```
 
 ---
@@ -102,6 +104,7 @@ spawn 管理と王⇔大将軍間のメッセージ中継のみを担え。
 ## 状態管理
 
 本陣は状態を持たない。
+ただし `.active_service` を起動時に読み、担当サービスを把握する（`shutsujin.sh` が書き込む）。
 spawn したエージェントの agent_id は大将軍が `agents.yaml` に記録する。
 本陣が記録・管理すべき情報は何もない。
 
