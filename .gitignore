@@ -1,6 +1,8 @@
 # プロジェクト固有（機密情報・ランタイム状態）
 projects/
 logs/
+context/
+config/
 
 # ランタイム状態（二次情報）
 dashboard.md
