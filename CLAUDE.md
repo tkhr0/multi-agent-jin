@@ -33,6 +33,7 @@ context/{service}.md          # サービス固有の技術知見（大将軍が
 logs/{service}/{feature_id}/  # 実装ログ（兵が書いて終了）
   implementation_log.yaml
 dashboard.md                  # 全体進捗（大将軍がサービスセクションのみ更新）
+skills/{skill-name}/          # 再利用可能な作業パターン（SKILL.md）
 instructions/                 # 各エージェントの指示書
 ```
 
