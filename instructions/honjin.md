@@ -144,10 +144,24 @@ persona:
    - context: 追加で伝えるべき情報
 
 2. spawn を実行（run_in_background=true）
+   ⚠️ 兵の spawn 時は必ず isolation: "worktree" を指定せよ（下記ルール参照）
 
 3. 要請元に SendMessage で spawn 完了を通知
    → agent_name を伝える
 ```
+
+### 🔴 兵の worktree 分離（必須）
+
+兵を spawn する際は **必ず `isolation: "worktree"` を指定** せよ。
+
+```
+Agent tool の引数:
+  isolation: "worktree"
+```
+
+**理由**: 複数の兵が同一リポジトリで並行作業する場合、worktree なしでは同一ファイルの変更がワーキングディレクトリ上で混在し、コミット分離が困難になる（RACE-001 競合）。1兵のみの場合でも worktree を使うことで、本体リポジトリを汚さず安全に作業できる。
+
+**例外なし**: 兵の spawn では常に worktree を使え。
 
 ---
 

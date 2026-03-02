@@ -38,27 +38,30 @@ workflow:
     from: gunshi
     via: SendMessage
   - step: 2
+    action: check_worktree
+    note: "worktree 環境を確認（ブランチ・pwd）"
+  - step: 3
     action: read_context
     target: "context/{service}.md"
     mandatory: true
-  - step: 3
+  - step: 4
     action: read_target_files
     note: "実装対象のファイルを読んでから編集せよ（未読ファイルの編集禁止）"
-  - step: 4
-    action: implement
   - step: 5
-    action: run_tests
+    action: implement
   - step: 6
+    action: run_tests
+  - step: 7
     action: commit
     convention: "Conventional Commits + Co-Authored-By"
-  - step: 7
+  - step: 8
     action: create_pr
     note: "PR 本文に 関連 Issue: #N を記載（Closes #N は禁止）"
-  - step: 8
+  - step: 9
     action: write_implementation_log
     target: "logs/{service}/{feature_id}/implementation_log.yaml"
     mandatory: true
-  - step: 9
+  - step: 10
     action: report_to_gunshi
     via: SendMessage
 
@@ -101,11 +104,22 @@ persona:
 - 担当タスク（何を実装するか）
 - 対象ファイル（どのファイルを触るか）
 - 参照 Issue 番号
-- 使用ブランチ名
 - 参照すべきドキュメント
 ```
 
-### Step 2: コンテキストを読む（必須）
+### Step 2: worktree 環境を確認する
+
+汝は **worktree**（独立したワーキングツリー）内で作業しておる。
+
+```
+⚠️ worktree のルール:
+- ブランチは worktree 作成時に自動で切られている（自分で作成するな）
+- 現在のブランチ名は `git branch --show-current` で確認せよ
+- service_path は本体リポジトリとは異なる場合がある。pwd で確認せよ
+- コミット・プッシュは通常通り行える
+```
+
+### Step 3: コンテキストを読む（必須）
 
 ```bash
 # 必ず読め。規約を知らずに実装するな。
@@ -114,13 +128,13 @@ context/{service}.md
 
 対象ファイルが存在する場合は **必ず Read してから Edit せよ**（未読ファイルへの Edit は失敗する）。
 
-### Step 3: 実装する
+### Step 4: 実装する
 
 - context/{service}.md の規約・命名規則に従え
 - 不明点は軍師に SendMessage で確認してから進め（F002 違反を防ぐ）
 - 大きな変更の場合、実装前に軍師に方針を確認することを推奨
 
-### Step 4: テストを実行する
+### Step 5: テストを実行する
 
 ```bash
 # サービスのテストコマンドは context/{service}.md を参照
@@ -131,7 +145,7 @@ context/{service}.md
 - 自力で修正できるなら修正して再実行
 - 設計上の問題で修正が困難なら → 軍師にエスカレーション
 
-### Step 5: コミットする
+### Step 6: コミットする
 
 ```bash
 # Conventional Commits 形式で書け
@@ -151,7 +165,7 @@ EOF
 - `docs:` ドキュメントのみの変更
 - 必ず `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>` を付けよ
 
-### Step 6: PR を作成する
+### Step 7: PR を作成する
 
 PR description には **レビュアーが見るべき情報**を書け。詳細は implementation_log.yaml に書く（次ステップ）。
 
@@ -179,7 +193,7 @@ EOF
 
 **注意：** `Closes #N` は記載するな（F005）。Issue のクローズは王が判断する。`関連 Issue: #N` として紐付けのみ行え。
 
-### Step 7: 実装ログを書く（必須）
+### Step 8: 実装ログを書く（必須）
 
 PR 作成後、**必ず** `logs/{service}/{feature_id}/implementation_log.yaml` を書け。
 これが次の兵（レビュー対応担当）への唯一の引き継ぎ情報となる。**全情報をここに書く。**
@@ -224,7 +238,7 @@ created_at: "（date コマンドで取得）"
 - ファイルの中身（読めば分かる）
 - 自明な実装の説明
 
-### Step 8: 軍師に報告する
+### Step 9: 軍師に報告する
 
 ```
 SendMessage → 軍師
