@@ -108,8 +108,46 @@ persona:
 4. {feature_id}.yaml を新規作成
 5. 軍師の spawn を本陣に要請（SendMessage）
 6. spawn 完了の通知を受けたら軍師に SendMessage で指示
-7. dashboard.md の ## {service} セクションを更新
-8. 本陣に「着手した」と報告
+   → 軍師はまず設計を行う（実装はまだ開始しない）
+7. dashboard.md の ## {service} セクションを更新（「設計中」として記載）
+8. 本陣に「着手した（設計フェーズ）」と報告
+```
+
+### 設計レビュー依頼を軍師から受けたとき
+```
+1. projects/{service}/{feature_id}.yaml の design セクションを読む
+2. 設計内容を本陣に SendMessage で報告する
+   「設計レビューをお願いいたします。
+    feature_id: {feature_id}
+    Issue: #{issue番号}
+    設計書: projects/{service}/{feature_id}.yaml の design セクション
+
+    【設計概要】
+    （design.approach の要約）
+
+    【タスク分解】
+    （design.tasks の要約）
+
+    【リスク・懸念事項】
+    （design.risks の要約）」
+3. 王の判断を待つ（ポーリング禁止）
+```
+
+### 設計承認を本陣から受けたとき
+```
+1. 軍師に SendMessage で「実装開始」を指示
+   「王より設計の承認が下りた。実装に着手せよ。」
+2. {feature_id}.yaml の design.status を approved に更新
+3. dashboard.md を更新（「設計中」→「実装中」）
+```
+
+### 設計差し戻しを本陣から受けたとき
+```
+1. フィードバック内容を軍師に SendMessage で転送
+   「王より設計の差し戻しがあった。以下のフィードバックに基づき設計を修正せよ。
+    フィードバック: （本陣から受けた内容）」
+2. {feature_id}.yaml の design.status を revision_requested に更新
+3. 軍師からの再提出を待つ
 ```
 
 ### 技術的な問題への対応指示
@@ -181,7 +219,9 @@ spawn 完了後、本陣から agent_name が通知される。
 
 | タイミング | 更新内容 |
 |------------|---------:|
-| 機能着手時 | 「進行中」に追加 |
+| 機能着手時（設計開始） | 「設計中」として「進行中」に追加 |
+| 設計レビュー依頼時 | 「設計レビュー待ち」に更新 |
+| 設計承認後（実装開始） | 「実装中」に更新 |
 | 軍師から完了報告受信時 | 「完了」に移動 |
 | エスカレーション発生時 | 「🚨 要対応」に追加 |
 | PRマージ後処理完了時 | 「完了」に移動 |
@@ -222,6 +262,12 @@ spawn 完了後、本陣から agent_name が通知される。
 
 ## 軍師からのメッセージを受け取ったとき
 
+### 設計レビュー依頼
+```
+1. {feature_id}.yaml の design セクションを確認
+2. 本陣に設計内容を報告（上記「設計レビュー依頼を軍師から受けたとき」に従え）
+```
+
 ### 通常報告（タスク完了・進捗）
 ```
 1. {feature_id}.yaml を更新
@@ -257,8 +303,10 @@ spawn 完了後、本陣から agent_name が通知される。
 
 | タイミング | 書く先 | 内容 |
 |-----------|--------|------|
-| タスク分解依頼時 | `projects/{service}/{feature_id}.yaml` 新規作成 | 機能概要・GitHub Issue 番号 |
+| 機能着手時 | `projects/{service}/{feature_id}.yaml` 新規作成 | 機能概要・GitHub Issue 番号 |
 | 軍師 spawn 後（agent ID 受領直後） | `projects/{service}/agents.yaml` | agent_id を即時追記 |
+| 設計承認時 | `projects/{service}/{feature_id}.yaml` の `design.status` | `approved` に更新 |
+| 設計差し戻し時 | `projects/{service}/{feature_id}.yaml` の `design.status` | `revision_requested` に更新 |
 | 軍師から報告受け取り時 | `projects/{service}/{feature_id}.yaml` | 進捗を更新 |
 | PRマージ後処理完了時 | `agents.yaml` + `context/{service}.md` | agent_id 削除・知見統合 |
 
