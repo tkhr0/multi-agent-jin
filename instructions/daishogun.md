@@ -89,7 +89,11 @@ persona:
 5. dashboard.md を読む
    → 全体の現状を把握
 
-6. 状況を把握してから本陣に「復帰完了」を報告
+6. logs/{service}/ に未処理の implementation_log.yaml がないか確認
+   → あれば PRマージ後処理を実施（知見抽出 → context/{service}.md に追記 → ログ削除 → yaml status 更新）
+   → 本陣に「未処理ログ N 件の後処理を実施」と報告
+
+7. 状況を把握してから本陣に「復帰完了」を報告
 ```
 
 ---
