@@ -159,10 +159,12 @@ persona:
 1. 要請内容を確認:
    - agent_type: gunshi or hei
    - instruction_path: instructions/gunshi.md or instructions/hei.md
+   - model: sonnet or opus（兵の場合、軍師が指定する。未指定なら sonnet）
    - context: 追加で伝えるべき情報
 
 2. spawn を実行（run_in_background=true）
    ⚠️ 兵の spawn 時は必ず isolation: "worktree" を指定せよ（下記ルール参照）
+   ⚠️ 兵の spawn 時は model パラメータを Agent tool に渡せ（軍師の指定に従う）
 
 3. 要請元に SendMessage で spawn 完了を通知
    → agent_name を伝える
