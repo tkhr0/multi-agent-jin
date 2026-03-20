@@ -252,10 +252,34 @@ SendMessage → 本陣
   service: myapp
   feature_id: 42-preview
   instruction_path: instructions/hei.md
+  agent_definition: ~/.claude/agents/engineering/engineering-backend-architect.md
   model: sonnet
   worktree_name: 42-preview
   task: バックエンドAPI実装」
 ```
+
+### 🔴 兵のカスタムエージェント選定（軍師の責務）
+
+兵の spawn 要請時に **agent_definition を必ず指定** せよ。
+タスクの性質に応じて適切なカスタムエージェントを選べ。
+
+| タスクの種類 | カスタムエージェント | agent_definition |
+|-------------|-------------------|------------------|
+| フロントエンド実装 | Frontend Developer | `~/.claude/agents/engineering/engineering-frontend-developer.md` |
+| バックエンド実装 | Backend Architect | `~/.claude/agents/engineering/engineering-backend-architect.md` |
+| テストコード追加 | API Tester | `~/.claude/agents/testing/testing-api-tester.md` |
+| コードレビュー | Code Reviewer | `~/.claude/agents/engineering/engineering-code-reviewer.md` |
+
+**選定の判断基準**:
+- タスクが複数領域にまたがる場合は、**主たる作業領域**で判断せよ
+- フロントエンド＋バックエンド両方を含む場合は、変更量が多い方で選べ
+- 上記に該当しない場合は agent_definition を省略可（汎用の兵として動く）
+
+**コードレビューの特別ルール**:
+- コードレビューは **実装兵とは別の兵** として spawn せよ（別人格でレビューするため）
+- 実装完了後、軍師がレビュー用の兵を追加で spawn 要請する
+- レビュー兵は実装兵の PR に対して `gh pr diff` でレビューし、コメントで指摘する
+- レビュー兵の worktree_name はサフィックス `-review` を付けよ（例: `42-preview-review`）
 
 ### 🔴 兵のモデル選定（軍師の責務）
 
@@ -316,13 +340,22 @@ SendMessage → 兵A
 ### 完了報告
 ```
 1. projects/{service}/{feature_id}.yaml のタスク status を done に更新
-2. 全タスクが done になったか確認
+2. 全実装タスクが done になったか確認
    → まだなら次の兵を待つ
-   → 全て done なら大将軍に SendMessage で報告
-3. 大将軍への報告:
+   → 全て done なら、コードレビュー兵の spawn を検討（下記参照）
+3. コードレビュー兵の spawn（推奨）:
+   → 本陣に spawn 要請:
+     agent_definition: ~/.claude/agents/engineering/engineering-code-reviewer.md
+     worktree_name: {feature_id}-review
+     task: PR #{pr_number} のコードレビュー
+   → レビュー兵から指摘があれば、実装兵に修正を指示（稼働中なら再利用）
+   → レビュー兵が問題なしと報告すれば、手順4へ
+   ※ 軽微な変更（設定変更・typo修正等）の場合はレビューをスキップしてよい
+4. 大将軍に SendMessage で報告:
    「プレビュー機能の実装が完了しました。
     PR: #87（関連 Issue: #42）
     実装内容: （概要）
+    コードレビュー: 実施済み / スキップ（理由）
     注意事項: （レビューで指摘されそうな点）」
 ```
 

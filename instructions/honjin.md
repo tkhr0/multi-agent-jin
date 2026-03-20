@@ -177,17 +177,27 @@ persona:
 1. 要請内容を確認:
    - agent_type: gunshi or hei
    - instruction_path: instructions/gunshi.md or instructions/hei.md
+   - agent_definition: カスタムエージェント定義のパス（兵の場合、軍師が指定。省略可）
    - model: sonnet or opus（兵の場合、軍師が指定する。未指定なら sonnet）
    - context: 追加で伝えるべき情報
    - worktree_name: 兵の場合、feature_id をベースにした名前（例: 42-preview）
 
 2. 兵の spawn 時は worktree を事前に作成する（下記ルール参照）
 
-3. spawn を実行（run_in_background=true）
+3. agent_definition が指定されている場合:
+   → そのファイルを読み、内容を兵への指示に含めよ
+   → 「以下のカスタムエージェント定義に従い、その専門性を発揮せよ。
+      ただし instructions/hei.md の作業フロー・禁止事項・報告ルールは必ず守れ。
+      --- カスタムエージェント定義 ---
+      （ファイルの内容）
+      --- 定義ここまで ---」
+
+4. spawn を実行（run_in_background=true）
    ⚠️ 兵の spawn 時は model パラメータを Agent tool に渡せ（軍師の指定に従う）
    ⚠️ 兵への指示に worktree パスを含めよ
+   ⚠️ agent_definition がある場合、その内容を兵への指示に含めよ（上記手順3）
 
-4. 要請元に SendMessage で spawn 完了を通知
+5. 要請元に SendMessage で spawn 完了を通知
    → agent_name と worktree パスを伝える
 ```
 
