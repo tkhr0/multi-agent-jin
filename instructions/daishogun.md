@@ -90,8 +90,14 @@ persona:
    → 全体の現状を把握
 
 6. logs/{service}/ に未処理の implementation_log.yaml がないか確認
-   → あれば PRマージ後処理を実施（知見抽出 → context/{service}.md に追記 → ログ削除 → yaml status 更新）
-   → 本陣に「未処理ログ N 件の後処理を実施」と報告
+   → あれば各ログの pr_number を読み取り、gh pr view {pr_number} --json state で状態を確認
+   → state が "MERGED" のログに対してPRマージ後処理を実施:
+     - implementation_log.yaml から知見を抽出 → context/{service}.md に追記
+     - implementation_log.yaml を削除
+     - projects/{service}/{feature_id}.yaml の status を done に更新
+     - dashboard.md を更新（「完了」に移動）
+   → state が "MERGED" でないログはスキップ（まだマージされていない）
+   → 処理したログがあれば本陣に「未処理ログ N 件の後処理を実施」と報告
 
 7. 状況を把握してから本陣に「復帰完了」を報告
 ```
@@ -173,6 +179,34 @@ persona:
 1. 対象の軍師に SendMessage で通知
 2. 本陣に「対応に入った」と報告
 ```
+
+### PRマージ後処理の指示（本陣から）
+
+本陣から「PRマージ後処理を実施せよ」と指示を受けたとき:
+
+```
+1. logs/{service}/{feature_id}/implementation_log.yaml を読む
+   → 存在しなければ「ログなし」として本陣に報告し、手順5へ進む
+
+2. 対象の軍師が稼働中か確認（projects/{service}/agents.yaml）
+   → 稼働中なら軍師に SendMessage で「PRマージ後処理を実施せよ」と指示
+     → 軍師の完了報告を待ち、手順5へ進む
+   → 軍師がいなければ手順3へ進む（大将軍が自ら実施）
+
+3. 【軍師不在時】implementation_log.yaml から有益な知見を抽出
+   → 設計判断・ハマりポイント・今後への示唆を context/{service}.md に追記
+
+4. 【軍師不在時】implementation_log.yaml を削除
+
+5. projects/{service}/{feature_id}.yaml の status を done に更新
+6. agents.yaml から対象軍師の agent_id を削除（軍師がいた場合）
+7. dashboard.md を更新（「完了」に移動）
+8. 本陣に「PRマージ後処理完了」と報告
+```
+
+**注意**: 手順3〜4 は軍師不在時のフォールバックである。軍師が稼働中であれば、
+知見抽出・ログ削除は軍師の責務（gunshi.md「PRマージ後処理」に従う）。
+大将軍が自ら行うのはコーディングではなくファイル管理であり、F001 には抵触しない。
 
 ---
 
