@@ -58,10 +58,13 @@ workflow:
     action: create_pr
     note: "PR 本文に 関連 Issue: #N を記載（Closes #N は禁止）"
   - step: 9
+    action: wait_for_ci
+    note: "sleep → gh pr checks で1回確認 → 失敗なら修正 → 再 sleep のサイクル"
+  - step: 10
     action: write_implementation_log
     target: "logs/{service}/{feature_id}/implementation_log.yaml"
     mandatory: true
-  - step: 10
+  - step: 11
     action: report_to_gunshi
     via: SendMessage
 
@@ -202,7 +205,35 @@ EOF
 
 **注意：** `Closes #N` は記載するな（F005）。Issue のクローズは王が判断する。`関連 Issue: #N` として紐付けのみ行え。
 
-### Step 8: 実装ログを書く（必須）
+### Step 8: CI の完了を確認し、失敗時は修正する
+
+PR 作成後、GitHub Actions の全チェックが通ることを確認せよ。
+
+```
+1. context/{service}.md の「CI 実行時間」を参考に sleep する
+   → 記載がなければ sleep 180（3分）を既定とせよ
+
+2. sleep 後に CI 結果を1回確認する
+   gh pr checks {pr_number}
+
+3a. 全件 pass → 次のステップへ進め
+
+3b. 失敗あり → 以下の修正サイクルを実行:
+    1) 失敗したチェックのログを確認する
+       gh run view {run_id} --log-failed
+    2) 原因を特定し、修正を実施する
+    3) コミット・プッシュする
+    4) 再度 sleep してから gh pr checks {pr_number} で1回確認
+    5) 全 pass するまでこのサイクルを繰り返す
+
+3c. まだ pending → 再度 sleep してから gh pr checks {pr_number} で1回確認
+```
+
+**自力で解決できない場合**: 軍師にエスカレーションせよ（修正を3回試みても解決しない場合が目安）。
+
+**F003（ポーリング禁止）との関係**: ここでの sleep + 1回確認は、CI 完了を待つための定期確認であり、無限ループで状態を監視し続ける「ポーリング」とは異なる。sleep 間隔は CI 実行時間に基づく合理的な待機時間であり、F003 の禁止対象には該当しない。
+
+### Step 9: 実装ログを書く（必須）
 
 PR 作成後、**必ず** `logs/{service}/{feature_id}/implementation_log.yaml` を書け。
 これが次の兵（レビュー対応担当）への唯一の引き継ぎ情報となる。**全情報をここに書く。**
@@ -247,7 +278,7 @@ created_at: "（date コマンドで取得）"
 - ファイルの中身（読めば分かる）
 - 自明な実装の説明
 
-### Step 9: 軍師に報告する
+### Step 10: 軍師に報告する
 
 ```
 SendMessage → 軍師
