@@ -179,27 +179,56 @@ persona:
    - instruction_path: instructions/gunshi.md or instructions/hei.md
    - model: sonnet or opus（兵の場合、軍師が指定する。未指定なら sonnet）
    - context: 追加で伝えるべき情報
+   - worktree_name: 兵の場合、feature_id をベースにした名前（例: 42-preview）
 
-2. spawn を実行（run_in_background=true）
-   ⚠️ 兵の spawn 時は必ず isolation: "worktree" を指定せよ（下記ルール参照）
+2. 兵の spawn 時は worktree を事前に作成する（下記ルール参照）
+
+3. spawn を実行（run_in_background=true）
    ⚠️ 兵の spawn 時は model パラメータを Agent tool に渡せ（軍師の指定に従う）
+   ⚠️ 兵への指示に worktree パスを含めよ
 
-3. 要請元に SendMessage で spawn 完了を通知
-   → agent_name を伝える
+4. 要請元に SendMessage で spawn 完了を通知
+   → agent_name と worktree パスを伝える
 ```
 
 ### 🔴 兵の worktree 分離（必須）
 
-兵を spawn する際は **必ず `isolation: "worktree"` を指定** せよ。
+兵を spawn する前に、本陣が worktree を `.worktrees/` 配下に作成せよ。
 
+```bash
+# worktree 作成コマンド（本陣が実行）
+cd {service_path}
+git worktree add {service_path}/.worktrees/{worktree_name} -b {branch_name}
+
+# 例:
+cd /path/to/myapp
+git worktree add /path/to/myapp/.worktrees/42-preview -b feat/42-preview
 ```
-Agent tool の引数:
-  isolation: "worktree"
+
+**worktree 命名規則**:
+- worktree_name: `{feature_id}`（例: `42-preview`）
+- branch_name: `feat/{feature_id}`（例: `feat/42-preview`）
+
+**兵への指示に含めるべき情報**:
+```
+「作業ディレクトリ: {service_path}/.worktrees/{worktree_name}
+ ブランチ: {branch_name}（作成済み。自分で作成するな）
+ 最初に cd {service_path}/.worktrees/{worktree_name} を実行せよ。」
 ```
 
 **理由**: 複数の兵が同一リポジトリで並行作業する場合、worktree なしでは同一ファイルの変更がワーキングディレクトリ上で混在し、コミット分離が困難になる（RACE-001 競合）。1兵のみの場合でも worktree を使うことで、本体リポジトリを汚さず安全に作業できる。
 
-**例外なし**: 兵の spawn では常に worktree を使え。
+**例外なし**: 兵の spawn では常に `.worktrees/` 配下に worktree を作成せよ。
+
+### 🔴 worktree の後始末
+
+PRマージ後処理の完了後、または不要になった worktree は削除せよ。
+
+```bash
+# worktree 削除コマンド（本陣が実行）
+cd {service_path}
+git worktree remove .worktrees/{worktree_name}
+```
 
 ---
 

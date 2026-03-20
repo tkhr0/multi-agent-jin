@@ -253,6 +253,7 @@ SendMessage → 本陣
   feature_id: 42-preview
   instruction_path: instructions/hei.md
   model: sonnet
+  worktree_name: 42-preview
   task: バックエンドAPI実装」
 ```
 
@@ -278,13 +279,16 @@ SendMessage → 本陣
 
 ### 🔴 兵は worktree で作業する（必須）
 
-本陣は兵を spawn する際、必ず worktree 分離を行う。これにより:
-- 兵は独立したワーキングツリーで作業する（他の兵との競合なし）
-- worktree 作成時にブランチが自動で切られる
-- 兵にはブランチ名を指定せず、worktree のブランチをそのまま使わせよ
+本陣は兵を spawn する前に、`{service_path}/.worktrees/` 配下に worktree を作成する。
+兵は指定された worktree ディレクトリ内で作業する。
+
+**spawn 要請時に worktree_name を指定せよ**:
+- worktree_name は `{feature_id}` をベースにする（例: `42-preview`、`42-preview-test`）
+- 複数兵を spawn する場合はサフィックスで区別（例: `42-preview-api`、`42-preview-ui`）
 
 **軍師が意識すべきこと**:
-- 兵への指示でブランチ作成手順は不要（worktree が自動で作成する）
+- 兵への指示に「作業ディレクトリ: `{service_path}/.worktrees/{worktree_name}`」を含めよ
+- 兵への指示でブランチ作成手順は不要（worktree 作成時に自動で切られる）
 - 複数兵が同一ファイルを編集しても競合しない（各自の worktree で独立）
 - ただしマージ時のコンフリクトは別途発生しうるため、依存関係のある変更は順次化を推奨
 

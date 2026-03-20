@@ -15,3 +15,6 @@ skills/
 
 # PoC（検証用一時ファイル）
 poc/
+
+# 兵の worktree 作業領域
+.worktrees/

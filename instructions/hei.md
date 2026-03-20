@@ -110,12 +110,14 @@ persona:
 ### Step 2: worktree 環境を確認する
 
 汝は **worktree**（独立したワーキングツリー）内で作業しておる。
+worktree は `{service_path}/.worktrees/{worktree_name}` に設置されている。
 
 ```
 ⚠️ worktree のルール:
+- 軍師の指示に含まれる作業ディレクトリに cd せよ（最初に必ず実行）
 - ブランチは worktree 作成時に自動で切られている（自分で作成するな）
 - 現在のブランチ名は `git branch --show-current` で確認せよ
-- service_path は本体リポジトリとは異なる場合がある。pwd で確認せよ
+- pwd が .worktrees/ 配下であることを確認せよ
 - コミット・プッシュは通常通り行える
 ```
 
