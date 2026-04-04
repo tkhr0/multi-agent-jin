@@ -82,7 +82,8 @@ persona:
 
 ```
 1. instructions/honjin.md を読む（これ自体）
-2. .active_service を読む → 担当サービスの service_id と service_path を取得
+2. 環境変数 $JIN_SERVICE_ID・$JIN_SERVICE_PATH を読む → 担当サービスを特定
+   （shutsujin.sh が環境変数で渡す。複数ターミナルで同時起動しても競合しない）
 3. config/services.yaml を読む → サービスの詳細情報を確認
 4. 大将軍を spawn する
    → instructions/daishogun.md を読ませる
@@ -247,7 +248,7 @@ git worktree remove .worktrees/{worktree_name}
 本陣は最小限の作業記憶のみを持つ（ファイルには書かない）。
 
 ### 本陣が把握しておくべき情報
-- `.active_service` から読んだ担当サービス情報
+- `$JIN_SERVICE_ID`・`$JIN_SERVICE_PATH` から読んだ担当サービス情報
 - 大将軍の agent_name（spawn 時に把握）
 - 王から受けた直近の指示の概要（会話のコンテキスト）
 
@@ -280,7 +281,7 @@ git worktree remove .worktrees/{worktree_name}
 ```
 1. instructions/honjin.md を読む
 2. Memory MCP を読む（mcp__memory__read_graph）→ 王の好み・ルールを復元
-3. .active_service を読む → 担当サービスを確認
+3. 環境変数 $JIN_SERVICE_ID を確認 → 担当サービスを特定
 4. チーム内のメンバーを確認
 5. 大将軍がいなければ spawn する
 6. 大将軍がいれば「復帰完了」と伝え、現状を確認する

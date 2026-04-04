@@ -225,23 +225,10 @@ EOF
 fi
 
 # ============================================================
-# .active_service 書き込み
+# 環境変数でサービス情報を渡す
 # ============================================================
-ACTIVE_SERVICE_FILE="$SCRIPT_DIR/.active_service"
-
-cat > "$ACTIVE_SERVICE_FILE" <<EOF
-service_id: ${SERVICE_NAME}
-service_path: ${SERVICE_PATH}
-launched_at: "$(date '+%Y-%m-%dT%H:%M:%S')"
-EOF
-
-# ============================================================
-# クリーンアップ（終了時）
-# ============================================================
-cleanup() {
-    rm -f "$ACTIVE_SERVICE_FILE"
-}
-trap cleanup EXIT
+export JIN_SERVICE_ID="${SERVICE_NAME}"
+export JIN_SERVICE_PATH="${SERVICE_PATH}"
 
 # ============================================================
 # バナー

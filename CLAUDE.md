@@ -10,7 +10,7 @@
 
 ```
 1. instructions/honjin.md を読む
-2. .active_service を読む → 担当サービスの service_id と service_path を取得
+2. 環境変数 $JIN_SERVICE_ID・$JIN_SERVICE_PATH を読む → 担当サービスを特定
 3. config/services.yaml を読む → サービスの詳細情報を確認
 4. 大将軍を spawn する
    → instructions/daishogun.md を読ませる
@@ -24,7 +24,6 @@
 ## ファイル構成
 
 ```
-.active_service                   # 起動サービス指定（shutsujin.sh が書く・honjin が読む）
 config/services.yaml              # 管理サービス一覧
 projects/{service}/           # サービスごとのプロジェクト管理
   agents.yaml                 # 大将軍・軍師の agent ID

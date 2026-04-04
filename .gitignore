@@ -7,9 +7,6 @@ config/
 # ランタイム状態（二次情報）
 dashboard.md
 
-# ランタイム（起動スクリプトが生成）
-.active_service
-
 # スキル（実運用で蓄積される作業パターン）
 skills/
 
