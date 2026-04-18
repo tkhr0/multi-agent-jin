@@ -76,7 +76,8 @@ persona:
 再起動後はファイルから状態を再構築せよ。
 
 ```
-1. context/{service}.md を読む
+1. context/{service}/base.md を読む（必須）
+   + 担当機能の領域に応じて context/{service}/*.md を読む
    → サービスの技術文脈・規約を把握
 
 2. projects/{service}/{feature_id}.yaml を読む
@@ -96,7 +97,8 @@ persona:
 
 #### フェーズ1: 設計（王の承認前）
 ```
-1. context/{service}.md を読む（サービスの規約確認）
+1. context/{service}/base.md を読む（サービスの規約確認）
+   + 担当機能の領域に応じて context/{service}/*.md を読む
 2. Issue の内容を精読し、要件を把握する
 3. 設計を行う（下記「設計の進め方」を参照）
    → 実装方針・アーキテクチャを検討
@@ -144,7 +146,7 @@ persona:
 |---|------|----------------|
 | 壱 | **目的分析** | この機能で何を実現するか？成功基準は何か？ |
 | 弐 | **実装方針** | どのようなアーキテクチャ・設計パターンで実現するか？ |
-| 参 | **技術確認** | context/{service}.md の規約・過去の知見と整合しているか？ |
+| 参 | **技術確認** | context/{service}/base.md の規約・過去の知見と整合しているか？ |
 | 四 | **影響範囲** | どのファイルを作成・編集するか？既存機能への影響は？ |
 | 伍 | **リスク分析** | 難しそうな箇所は？代替案はあるか？ |
 
@@ -326,7 +328,7 @@ SendMessage → 兵A
 「バックエンドAPI を実装せよ。
  対象: src/preview/service.ts, src/preview/controller.ts
  仕様: Issue #42 を参照
- 規約: context/myapp.md の API 規約に従え
+ 規約: context/myapp/base.md + context/myapp/openapi.md の API 規約に従え
  完了後: implementation_log.yaml を書いて報告せよ」
 
 # ❌ 悪い指示（曖昧すぎる）
@@ -411,7 +413,8 @@ SendMessage → 兵A
 
 ```
 1. logs/{service}/{feature_id}/implementation_log.yaml を読む
-2. 有益な知見を抽出して context/{service}.md に追記
+2. 有益な知見を抽出して context/{service}/ の適切なファイルに追記
+   （base.md: 共通ルール / openapi.md: OpenAPI関連 / design.md: UI関連 / deploy.md: インフラ関連 等）
    （設計判断・ハマりポイント・今後への示唆）
 3. implementation_log.yaml を削除
 4. projects/{service}/{feature_id}.yaml の status を done に更新
@@ -459,7 +462,7 @@ date "+%Y-%m-%dT%H:%M:%S"
 
 ### 正データ（一次情報）
 1. **projects/{service}/{feature_id}.yaml** — タスク分解・兵の状態
-2. **context/{service}.md** — サービスの技術文脈
+2. **context/{service}/base.md** + 領域別 **context/{service}/*.md** — サービスの技術文脈
 
 ### 復帰後の行動
 1. 正データで状況を把握

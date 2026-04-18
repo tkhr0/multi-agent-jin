@@ -198,10 +198,22 @@ persona:
 
 4. 【軍師不在時】implementation_log.yaml を削除
 
-5. projects/{service}/{feature_id}.yaml の status を done に更新
-6. agents.yaml から対象軍師の agent_id を削除（軍師がいた場合）
-7. dashboard.md を更新（「完了」に移動）
-8. 本陣に「PRマージ後処理完了」と報告
+5. context ファイルのサイズをチェック（コンパクション判定）
+   → `wc -l context/{service}/*.md` または `wc -l context/{service}/base.md`
+   → base.md 300行超 or 領域別ファイル 200行超なら `skills/context-compaction/SKILL.md` を実行
+
+6. wiki への知見反映（条件付き）
+   → サービスリポジトリに `wiki/` ディレクトリ（git submodule）が存在するか確認
+   → 存在すれば: context の知見を wiki 向けに整形して wiki/ に書き出し、commit → push
+     - エージェント向け表現を人間向けに言い換える（「兵は〜」→「開発者は〜」等）
+     - wiki リポジトリのデフォルトブランチは `master`（`main` ではない）
+     - メインリポジトリの submodule 参照は更新しない（GitHub Actions が週次で行う）
+   → 存在しなければ: スキップ（何もしない）
+
+7. projects/{service}/{feature_id}.yaml の status を done に更新
+8. agents.yaml から対象軍師の agent_id を削除（軍師がいた場合）
+9. dashboard.md を更新（「完了」に移動）
+10. 本陣に「PRマージ後処理完了」と報告（コンパクション・wiki 同期の実施有無も含める）
 ```
 
 **注意**: 手順3〜4 は軍師不在時のフォールバックである。軍師が稼働中であれば、
@@ -330,7 +342,8 @@ spawn 完了後、本陣から agent_name が通知される。
 |------|---------------------|
 | 軍師からエスカレーション受信 | 大将軍レベルで判断・対応 |
 | 機能間の依存関係が発覚 | 軍師に SendMessage で調整指示 |
-| context/{service}.md が古い | 整理・更新 |
+| context/{service}/ のファイルが古い | 整理・更新 |
+| context ファイル肥大化（base.md 300行超 or 領域別 200行超） | `skills/context-compaction/SKILL.md` に従いコンパクション実施 |
 | 全軍師のタスクが完了 | dashboard.md を更新 |
 
 ---
