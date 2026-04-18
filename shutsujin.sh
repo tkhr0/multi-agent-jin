@@ -9,6 +9,7 @@
 # Options:
 #   --model MODEL    本陣のモデル指定（デフォルト: opus）
 #   --clean          サービス状態をリセットして起動
+#   --yolo           --dangerously-skip-permissions を付与して起動
 #   --help           ヘルプ表示
 #
 # Description:
@@ -46,12 +47,14 @@ Arguments:
 Options:
   --model MODEL    本陣のモデル指定（opus, sonnet, haiku / デフォルト: opus）
   --clean          サービス状態をリセットして起動
+  --yolo           --dangerously-skip-permissions を付与して起動
   --help           このヘルプを表示
 
 Examples:
   ./shutsujin.sh myapp                  # myapp サービスを起動
   ./shutsujin.sh myapp --model sonnet   # モデルを sonnet に指定
   ./shutsujin.sh myapp --clean          # 状態リセットして起動
+  ./shutsujin.sh myapp --yolo           # 権限確認なしで起動
 HELP
     exit 0
 }
@@ -97,6 +100,7 @@ list_services() {
 SERVICE_NAME=""
 MODEL="opus"
 CLEAN_MODE=false
+YOLO_MODE=false
 
 # 引数なしならヘルプ
 if [[ $# -eq 0 ]]; then
@@ -117,6 +121,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --clean)
             CLEAN_MODE=true
+            shift
+            ;;
+        --yolo)
+            YOLO_MODE=true
             shift
             ;;
         --help)
@@ -251,4 +259,9 @@ echo ""
 # Claude Code 起動
 # ============================================================
 cd "$SCRIPT_DIR"
-exec claude --model "$MODEL" --dangerously-skip-permissions
+CLAUDE_ARGS=(--model "$MODEL")
+if [[ "$YOLO_MODE" == true ]]; then
+    CLAUDE_ARGS+=(--dangerously-skip-permissions)
+fi
+
+exec claude "${CLAUDE_ARGS[@]}"
