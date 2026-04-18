@@ -28,12 +28,16 @@ config/services.yaml              # 管理サービス一覧
 projects/{service}/           # サービスごとのプロジェクト管理
   agents.yaml                 # 大将軍・軍師の agent ID
   {feature_id}.yaml           # 機能ごとの状態・タスク（例: 333-noindex.yaml）
-context/{service}.md          # サービス固有の技術知見（大将軍が守護）
+context/{service}/            # サービス固有の技術知見（大将軍が守護）
+  base.md                     # 全兵必読の共通ルール
+  {domain}.md                 # 領域別の知見（openapi.md, design.md 等）
 logs/{service}/{feature_id}/  # 実装ログ（兵が書いて終了）
   implementation_log.yaml
 dashboard.md                  # 全体進捗（大将軍がサービスセクションのみ更新）
 skills/{skill-name}/          # 再利用可能な作業パターン（SKILL.md）
 instructions/                 # 各エージェントの指示書
+designs/{service}/            # 設計仕様書・デザインスペック（Figma 準拠の実装仕様等）
+reports/{service}/            # 調査報告書・週次報告・競合分析・PRD 等の成果物
 ```
 
 ## 指示書
