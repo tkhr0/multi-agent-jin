@@ -229,10 +229,10 @@ persona:
 ```
 SendMessage → 本陣
 「軍師の召喚をお願いします。
-  service: myapp
+  service: {service_id}
   feature_id: 42-preview
   instruction_path: instructions/gunshi.md
-  yaml_path: projects/myapp/42-preview.yaml」
+  yaml_path: projects/{service_id}/42-preview.yaml」
 ```
 
 spawn 完了後、本陣から agent_name が通知される。
@@ -253,7 +253,7 @@ spawn 完了後、本陣から agent_name が通知される。
 
 ---
 
-## myapp
+## {service}
 
 ### 進行中
 - プレビュー機能（Issue #42）: PR #87 レビュー待ち

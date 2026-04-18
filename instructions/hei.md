@@ -249,7 +249,7 @@ PR 作成後、**必ず** `logs/{service}/{feature_id}/implementation_log.yaml` 
 
 ```yaml
 feature: プレビュー機能
-service: myapp
+service: {service_id}
 branch: feature/preview
 pr_number: 87
 github_issue: 42

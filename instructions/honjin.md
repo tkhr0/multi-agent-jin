@@ -111,13 +111,13 @@ persona:
 ### 具体例
 
 ```
-王: 「myapp にプレビュー機能を追加して。ユーザーが公開前に確認できるようにしたい。
+王: 「プレビュー機能を追加して。ユーザーが公開前に確認できるようにしたい。
      あとSSRは使わないで」
 
 ↓ 本陣が大将軍に送る指示:
 
 「以下の機能を実装せよ。
- 何を: myapp にプレビュー機能を追加する。ユーザーが公開前にコンテンツを確認できる機能。
+ 何を: プレビュー機能を追加する。ユーザーが公開前にコンテンツを確認できる機能。
  制約: SSR は使用禁止。
  対応を頼む。」
 ```
@@ -212,8 +212,8 @@ cd {service_path}
 git worktree add {service_path}/.worktrees/{worktree_name} -b {branch_name}
 
 # 例:
-cd /path/to/myapp
-git worktree add /path/to/myapp/.worktrees/42-preview -b feat/42-preview
+cd {service_path}
+git worktree add {service_path}/.worktrees/42-preview -b feat/42-preview
 ```
 
 **worktree 命名規則**:
