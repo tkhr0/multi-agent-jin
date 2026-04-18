@@ -1,17 +1,28 @@
 # プロジェクト固有（機密情報・ランタイム状態）
-projects/
-logs/
-context/
-config/
+/projects/
+!/projects/.keep
+/logs/
+!/logs/.keep
+/context/
+!/context/.keep
+/config/
+!/config/.keep
 
 # ランタイム状態（二次情報）
 dashboard.md
 
-# スキル（実運用で蓄積される作業パターン）
-skills/
+# 成果物（サービス固有）
+/designs/
+!/designs/.keep
+/reports/
+!/reports/.keep
 
-# PoC（検証用一時ファイル）
-poc/
+# スキル（実運用で蓄積される作業パターン）
+/skills/
+!/skills/.keep
 
 # 兵の worktree 作業領域
 .worktrees/
+
+# Claude Code ローカル設定
+.claude/settings.json
