@@ -1,0 +1,42 @@
+# 実装ログテンプレート
+# 兵が実装完了時に記録する引き継ぎ情報。
+# ファイルパス: logs/{service}/{feature_id}/implementation_log.yaml
+
+feature: （機能の概要）
+service: {service}
+branch: feat/{issue_number}-{slug}
+pr_number: null  # PR 作成後に記入
+github_issue: {issue_number}
+
+# 変更したファイルの一覧と概要
+files_changed:
+  - path: path/to/file
+    summary: 変更内容の要約
+
+# 設計判断とその理由
+decisions:
+  - subject: 判断した内容
+    reason: |
+      なぜその判断をしたかの説明。
+      後から読んだ人が「なぜこうなっているか」を理解できるように書く。
+
+# 検討したが採用しなかったアプローチ
+approaches_rejected:
+  - approach: 不採用にしたアプローチ
+    reason: 不採用の理由
+
+# 既知の問題・制約
+known_issues: []
+  # - 既知の問題があれば記載
+
+# レビュー時に確認してほしいポイント
+review_concerns: []
+  # - レビュアーに注意を促したい点
+
+# CI 検証結果
+ci_verification:
+  workflow_run: null  # GitHub Actions の URL
+  result: null        # success / failure（+ 説明）
+
+created_at: null  # ISO 8601 形式（例: 2026-04-18T10:00:00）
+updated_at: null
