@@ -65,18 +65,36 @@ fi
 echo ""
 
 # ============================================================
-# Step 2: Claude Code CLI
+# Step 2: Agent CLI
 # ============================================================
-echo -e "${CYAN}--- Step 2: Claude Code CLI ---${NC}"
+echo -e "${CYAN}--- Step 2: Agent CLI ---${NC}"
+
+CLI_FOUND=false
 
 if command -v claude &>/dev/null; then
     CLAUDE_VERSION=$(claude --version 2>/dev/null || echo "不明")
     check_pass "Claude Code CLI: $CLAUDE_VERSION"
+    CLI_FOUND=true
 else
-    check_fail "Claude Code CLI が見つかりません"
+    info "Claude Code CLI: 未検出"
+fi
+
+if command -v codex &>/dev/null; then
+    CODEX_VERSION=$(codex --version 2>/dev/null || echo "不明")
+    check_pass "Codex CLI: $CODEX_VERSION"
+    CLI_FOUND=true
+else
+    info "Codex CLI: 未検出"
+fi
+
+if [[ "$CLI_FOUND" != true ]]; then
+    check_fail "Claude Code CLI も Codex CLI も見つかりません"
     echo ""
-    echo "  インストール方法:"
+    echo "  Claude Code のインストール方法:"
     echo "    curl -fsSL https://claude.ai/install.sh | bash"
+    echo ""
+    echo "  Codex CLI は別途インストールしてください。"
+    echo "  すでに Claude Code か Codex CLI のどちらかを入れてから再実行してください。"
     echo ""
 fi
 echo ""
@@ -217,4 +235,5 @@ echo ""
 echo "次のステップ:"
 echo "  1. サービス追加:  ./add_service.sh"
 echo "  2. セッション起動: ./shutsujin.sh <service_name>"
+echo "  3. Codex で起動:   ./shutsujin.sh <service_name> --cli codex"
 echo ""

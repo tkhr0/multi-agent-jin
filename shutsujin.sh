@@ -7,6 +7,7 @@
 #   ./shutsujin.sh <service_name> [OPTIONS]
 #
 # Options:
+#   --cli CLAUDE|CODEX
 #   --model MODEL    本陣のモデル指定（デフォルト: opus）
 #   --clean          サービス状態をリセットして起動
 #   --yolo           --dangerously-skip-permissions を付与して起動
@@ -45,6 +46,7 @@ Arguments:
   service_name     起動するサービスのID（config/services.yaml に登録済みであること）
 
 Options:
+  --cli CLAUDE|CODEX  起動する CLI を指定（デフォルト: CLAUDE）
   --model MODEL    本陣のモデル指定（opus, sonnet, haiku / デフォルト: opus）
   --clean          サービス状態をリセットして起動
   --yolo           --dangerously-skip-permissions を付与して起動
@@ -52,6 +54,7 @@ Options:
 
 Examples:
   ./shutsujin.sh myapp                  # myapp サービスを起動
+  ./shutsujin.sh myapp --cli codex      # Codex で起動
   ./shutsujin.sh myapp --model sonnet   # モデルを sonnet に指定
   ./shutsujin.sh myapp --clean          # 状態リセットして起動
   ./shutsujin.sh myapp --yolo           # 権限確認なしで起動
@@ -98,6 +101,7 @@ list_services() {
 # 引数パース
 # ============================================================
 SERVICE_NAME=""
+CLI="claude"
 MODEL="opus"
 CLEAN_MODE=false
 YOLO_MODE=false
@@ -115,7 +119,19 @@ fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --cli)
+            if [[ $# -lt 2 ]]; then
+                error "--cli には CLAUDE または CODEX を指定してください"
+                exit 1
+            fi
+            CLI="$(printf '%s' "$2" | tr '[:upper:]' '[:lower:]')"
+            shift 2
+            ;;
         --model)
+            if [[ $# -lt 2 ]]; then
+                error "--model にはモデル名を指定してください"
+                exit 1
+            fi
             MODEL="$2"
             shift 2
             ;;
@@ -190,6 +206,15 @@ case "$MODEL" in
         ;;
 esac
 
+# CLI 検証
+case "$CLI" in
+    claude|codex) ;;
+    *)
+        error "不正な CLI: ${CLI} （claude, codex のいずれかを指定）"
+        exit 1
+        ;;
+esac
+
 # ============================================================
 # クリーンモード
 # ============================================================
@@ -249,19 +274,69 @@ echo ""
 echo -e "  サービス: ${CYAN}${SERVICE_NAME}${NC}"
 echo -e "  パス:     ${SERVICE_PATH}"
 echo -e "  説明:     ${SERVICE_DESC}"
+echo -e "  CLI:      ${CYAN}${CLI}${NC}"
 echo -e "  モデル:   ${CYAN}${MODEL}${NC}"
 echo ""
-echo -e "  ${YELLOW}Claude Code を起動します...${NC}"
-echo -e "  ${YELLOW}CLAUDE.md → honjin.md の順で初期化が行われます${NC}"
+if [[ "$CLI" == "claude" ]]; then
+    echo -e "  ${YELLOW}Claude Code を起動します...${NC}"
+    echo -e "  ${YELLOW}CLAUDE.md → honjin.md の順で初期化が行われます${NC}"
+else
+    echo -e "  ${YELLOW}Codex CLI を起動します...${NC}"
+    echo -e "  ${YELLOW}AGENT.md → CLAUDE.md → honjin.md の順で初期化が行われます${NC}"
+fi
 echo ""
 
 # ============================================================
-# Claude Code 起動
+# 起動
 # ============================================================
 cd "$SCRIPT_DIR"
-CLAUDE_ARGS=(--model "$MODEL")
-if [[ "$YOLO_MODE" == true ]]; then
-    CLAUDE_ARGS+=(--dangerously-skip-permissions)
+if [[ "$CLI" == "claude" ]]; then
+    if ! command -v claude >/dev/null 2>&1; then
+        error "claude コマンドが見つかりません"
+        exit 1
+    fi
+
+    CLAUDE_ARGS=(--model "$MODEL")
+    if [[ "$YOLO_MODE" == true ]]; then
+        CLAUDE_ARGS+=(--dangerously-skip-permissions)
+    fi
+
+    exec claude "${CLAUDE_ARGS[@]}"
 fi
 
-exec claude "${CLAUDE_ARGS[@]}"
+if [[ ! -f "$SCRIPT_DIR/AGENT.md" ]]; then
+    error "AGENT.md が見つかりません。Codex 起動には AGENT.md が必要です。"
+    exit 1
+fi
+
+if ! command -v codex >/dev/null 2>&1; then
+    error "codex コマンドが見つかりません"
+    exit 1
+fi
+
+CODEX_PROMPT=$(cat <<EOF
+multi-agent-jin の本陣として振る舞ってください。
+
+まずリポジトリの指示に従ってください:
+1. AGENT.md を読む
+2. CLAUDE.md を読む
+3. instructions/honjin.md を読む
+4. 環境変数 JIN_SERVICE_ID と JIN_SERVICE_PATH を確認する
+5. config/services.yaml を読む
+6. 大将軍を spawn し、instructions/daishogun.md を読ませる
+7. 大将軍の spawn 完了後、王に「起動完了」と報告する
+
+担当サービス:
+- service_id: ${SERVICE_NAME}
+- service_path: ${SERVICE_PATH}
+
+起動後は、このリポジトリの指示体系に従って、王の指示を解釈して対応してください。
+EOF
+)
+
+CODEX_ARGS=(--model "$MODEL" --sandbox workspace-write)
+if [[ "$YOLO_MODE" == true ]]; then
+    CODEX_ARGS+=(--sandbox danger-full-access)
+fi
+
+exec codex "${CODEX_ARGS[@]}" "$CODEX_PROMPT"
