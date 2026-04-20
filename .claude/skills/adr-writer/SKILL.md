@@ -144,12 +144,13 @@ description: ADR（Architecture Decision Record）の作成トリガーを判定
 ls docs/adr/
 ```
 
-- 次の ADR 番号を決定（最大番号 + 1）
 - 関連する既存 ADR を特定（置換・廃止する場合は明記）
 
 ### Step 3: ADR を起草
 
-以下のテンプレートで起草する:
+ファイル名: `docs/adr/NNNN_{summary}.md`（例: `docs/adr/0001_jwt-cookie-storage.md`）
+
+テンプレート（`templates/adr.md`）を使って起草する:
 
 ```markdown
 # NNNN: {タイトル}
@@ -157,7 +158,6 @@ ls docs/adr/
 - **日付:** YYYY-MM-DD
 - **ステータス:** 承認
 - **関連タスク:** Phase N / PR #XX
-- **廃止:** ADR XXXX の {セクション名}（該当する場合のみ）
 
 ## コンテキスト
 
@@ -209,12 +209,12 @@ ls docs/adr/
 ### 良い ADR タイトルの例
 
 ```
-0009: 認証・認可アーキテクチャ（JWT + API Key + RBAC）
-0011: Admin JWT トークンの Cookie 保存
-0013: メディア管理の S3/MinIO 採用
-0020: Phase 実行順序の変更（5 ↔ 7）
-0023: ユーザー・組織・権限モデルの再設計
-0024: Phase 5 チャットボット デモ用設計
+0001_auth-jwt-apikey-rbac.md
+0002_admin-jwt-cookie-storage.md
+0003_media-s3-minio.md
+0004_phase-order-swap-5-7.md
+0005_user-org-permission-redesign.md
+0006_phase5-chatbot-demo.md
 ```
 
 ### 悪い ADR タイトルの例
